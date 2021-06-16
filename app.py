@@ -8,7 +8,7 @@ import sqlite3
 app = Flask(__name__)
 
 app.secret_key = "1qazxsw23edcvfr4"
-app.database = "sample.db"
+app.database = "smple.db"
 # login required decorator
 def login_required(f):
     @wraps(f)
@@ -24,23 +24,26 @@ def login_required(f):
 @app.route('/')
 @login_required
 def home():
-    
-    g.db = connect_db()
-    cur = g.db.execute('select * from posts')
-    #this test did not work because the () was missing in the print
-    #print(cur)
-    #print(cur.fetchall())
-    # post_dict = {}
     posts = []
-    for row in cur.fetchall():
-        #post_dict["title"] = row[0]
-        #post_dict["description"] = row[1]
-        posts.append(dict(title=row[0], description=row[1]))
-        #print(posts)
+    try:
+        g.db = connect_db()
+        cur = g.db.execute('select * from posts')
+        #this test did not work because the () was missing in the print
+        #print(cur)
+        #print(cur.fetchall())
+        # post_dict = {}
 
-    #posts = [dict(title=row[0], descripition=row[1]) for row in cur.fetchall()]
-    # print(posts)
-    g.db.close()
+        for row in cur.fetchall():
+            #post_dict["title"] = row[0]
+            #post_dict["description"] = row[1]
+            posts.append(dict(title=row[0], description=row[1]))
+            #print(posts)
+
+        #posts = [dict(title=row[0], descripition=row[1]) for row in cur.fetchall()]
+        # print(posts)
+        g.db.close()
+    except sqlite3.OperationalError:
+        flash("You have no database!")
     return render_template('home/index.html', posts=posts)
 
 
